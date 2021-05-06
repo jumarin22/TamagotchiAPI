@@ -27,7 +27,7 @@ namespace TamagotchiAPI.Models
             if (!optionsBuilder.IsConfigured)
             {
                 var databaseURL = Environment.GetEnvironmentVariable("DATABASE_URL");
-                var defaultConnectionString = $"server=localhost;database={DEVELOPMENT_DATABASE_NAME}";
+                var defaultConnectionString = $"server=localhost;database={DEVELOPMENT_DATABASE_NAME};Username=foo;Password=secret";
 
                 var conn = databaseURL != null ? ConvertPostConnectionToConnectionString(databaseURL) : defaultConnectionString;
 
