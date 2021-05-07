@@ -195,53 +195,46 @@ namespace TamagotchiAPI.Controllers
         [HttpPost("{id}/Feedings")]
         public async Task<ActionResult<Playtime>> CreateFeedingForPet(int id, Feeding feeding)
         {
-            // First, lets find the Pet (by using the ID)
+
             var pet = await _context.Pets.FindAsync(id);
-            // If the pet doesn't exist: return a 404 Not found.
             if (pet == null)
                 return NotFound();
-            // Associate the feeding to the given pet.
             feeding.PetId = pet.Id;
             // Can't feed a full pet. 
             if (pet.HungerLevel == 0)
                 return BadRequest(new { Message = $"{pet.Name} isn't hungry!" });
             // Set feeding to current time. 
             feeding.When = DateTime.Now;
-            // Add the feeding to the database
             _context.Feedings.Add(feeding);
             // Add three to pet happiness level.
             pet.HappinessLevel += 3;
-            // Subtract five to pet hunger level. 
+            // Subtract five from pet hunger level. 
             pet.HungerLevel -= 5;
-            if (pet.HungerLevel < 0) // Don't let hunger level go negative. 
+            // Don't let hunger level go negative.
+            if (pet.HungerLevel < 0)
                 pet.HungerLevel = 0;
 
             await _context.SaveChangesAsync();
-            // Return the new feeding to the response of the API. 
             return Ok(feeding);
         }
 
         [HttpPost("{id}/Scoldings")]
         public async Task<ActionResult<Playtime>> CreateScoldingForPet(int id, Scolding scolding)
         {
-            // First, lets find the Pet (by using the ID)
             var pet = await _context.Pets.FindAsync(id);
-            // If the pet doesn't exist: return a 404 Not found.
             if (pet == null)
                 return NotFound();
-            // Associate the scolding to the given pet.
             scolding.PetId = pet.Id;
-            // Set scolding to current time. 
             scolding.When = DateTime.Now;
-            // Add the scolding to the database
             _context.Scoldings.Add(scolding);
-            // Subtract five from pet happiness level.
+            // Subtract five from pet happiness level. 
             pet.HappinessLevel -= 5;
-            if (pet.HappinessLevel < 0) // Don't let happiness level go negative. 
-                pet.HappinessLevel = 0;
+
+            // Stop scolding your pet!
+            if (pet.HappinessLevel < 0)
+                return BadRequest("Your pet is sad.");
 
             await _context.SaveChangesAsync();
-            // Return the new scolding to the response of the API. 
             return Ok(scolding);
         }
 
