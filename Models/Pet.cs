@@ -10,6 +10,20 @@ namespace TamagotchiAPI.Models
         public int HungerLevel { get; set; }
         public int HappinessLevel { get; set; }
         public DateTime LastInteractedWithDate { set; get; }
-        public bool IsDead { get; set; }
+
+        // Adventure mode: Pet is dead if not interacted with for more than 3 days. 
+        public bool IsDead
+        {
+            get
+            {
+                TimeSpan ts = DateTime.Now - LastInteractedWithDate;
+                double NumberOfDays = ts.TotalDays;
+                if (NumberOfDays > 3)
+                    return true;
+
+                return false;
+            }
+
+        }
     }
 }

@@ -31,11 +31,16 @@ namespace TamagotchiAPI.Controllers
         // Returns a list of all your Pets
         //
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Pet>>> GetPets()
+        public async Task<ActionResult<IEnumerable<Pet>>> GetPets(string input)
         {
-            // Uses the database context in `_context` to request all of the Pets, sort
-            // them by row id and return them as a JSON array.
-            return await _context.Pets.OrderBy(row => row.Id).ToListAsync();
+            // Adventure mode: Only return alive pets with correct query string.
+            if (input == "alive")
+            {
+                var alivePets = _context.Pets.AsEnumerable().Where(pet => !pet.IsDead);
+                return alivePets.ToList();
+            }
+            else
+                return await _context.Pets.OrderBy(row => row.Id).ToListAsync();
         }
 
         // GET: api/Pets/5
@@ -61,56 +66,6 @@ namespace TamagotchiAPI.Controllers
             return pet;
         }
 
-        // PUT: api/Pets/5
-        //
-        // Update an individual pet with the requested id. The id is specified in the URL
-        // In the sample URL above it is the `5`. The "{id} in the [HttpPut("{id}")] is what tells dotnet
-        // to grab the id from the URL. It is then made available to us as the `id` argument to the method.
-        //
-        // In addition the `body` of the request is parsed and then made available to us as a Pet
-        // variable named pet. The controller matches the keys of the JSON object the client
-        // supplies to the names of the attributes of our Pet POCO class. This represents the
-        // new values for the record.
-        //
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutPet(int id, Pet pet)
-        {
-            // If the ID in the URL does not match the ID in the supplied request body, return a bad request
-            if (id != pet.Id)
-            {
-                return BadRequest();
-            }
-
-            // Tell the database to consider everything in pet to be _updated_ values. When
-            // the save happens the database will _replace_ the values in the database with the ones from pet
-            _context.Entry(pet).State = EntityState.Modified;
-
-            try
-            {
-                // Try to save these changes.
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                // Ooops, looks like there was an error, so check to see if the record we were
-                // updating no longer exists.
-                if (!PetExists(id))
-                {
-                    // If the record we tried to update was already deleted by someone else,
-                    // return a `404` not found
-                    return NotFound();
-                }
-                else
-                {
-                    // Otherwise throw the error back, which will cause the request to fail
-                    // and generate an error to the client.
-                    throw;
-                }
-            }
-
-            // Return a copy of the updated data
-            return Ok(pet);
-        }
 
         // POST: api/Pets
         //
@@ -187,6 +142,10 @@ namespace TamagotchiAPI.Controllers
             // Add three to pet hunger level. 
             pet.HungerLevel += 3;
 
+
+            // Adventure mode: Update LastInteractedWithDate
+            pet.LastInteractedWithDate = DateTime.Now;
+
             await _context.SaveChangesAsync();
             // Return the new playtime to the response of the API. 
             return Ok(playtime);
@@ -211,6 +170,10 @@ namespace TamagotchiAPI.Controllers
             // Subtract five from pet hunger level. 
             pet.HungerLevel -= 5;
 
+
+            // Adventure mode: Update LastInteractedWithDate
+            pet.LastInteractedWithDate = DateTime.Now;
+
             await _context.SaveChangesAsync();
             return Ok(feeding);
         }
@@ -226,6 +189,10 @@ namespace TamagotchiAPI.Controllers
             _context.Scoldings.Add(scolding);
             // Subtract five from pet happiness level. 
             pet.HappinessLevel -= 5;
+
+
+            // Adventure mode: Update LastInteractedWithDate
+            pet.LastInteractedWithDate = DateTime.Now;
 
             await _context.SaveChangesAsync();
             return Ok(scolding);
