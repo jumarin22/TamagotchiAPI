@@ -34,7 +34,7 @@ namespace TamagotchiAPI.Controllers
         public async Task<ActionResult<IEnumerable<Pet>>> GetPets(string input)
         {
             // Adventure mode: Only return alive pets with correct query string.
-            if (input == "alive")
+            if (input.ToLower() == "alive")
             {
                 var alivePets = _context.Pets.AsEnumerable().Where(pet => !pet.IsDead);
                 return alivePets.ToList();
@@ -142,7 +142,6 @@ namespace TamagotchiAPI.Controllers
             // Add three to pet hunger level. 
             pet.HungerLevel += 3;
 
-
             // Adventure mode: Update LastInteractedWithDate
             pet.LastInteractedWithDate = DateTime.Now;
 
@@ -170,7 +169,6 @@ namespace TamagotchiAPI.Controllers
             // Subtract five from pet hunger level. 
             pet.HungerLevel -= 5;
 
-
             // Adventure mode: Update LastInteractedWithDate
             pet.LastInteractedWithDate = DateTime.Now;
 
@@ -189,7 +187,6 @@ namespace TamagotchiAPI.Controllers
             _context.Scoldings.Add(scolding);
             // Subtract five from pet happiness level. 
             pet.HappinessLevel -= 5;
-
 
             // Adventure mode: Update LastInteractedWithDate
             pet.LastInteractedWithDate = DateTime.Now;
