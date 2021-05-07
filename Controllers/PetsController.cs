@@ -124,6 +124,12 @@ namespace TamagotchiAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Pet>> PostPet(Pet pet)
         {
+            // Birthday defaults to current DateTime. 
+            pet.Birthday = DateTime.Now;
+            // HungerLevel defaults to 0. 
+            pet.HungerLevel = 0;
+            // HappinessLevel defaults to 0. 
+            pet.HappinessLevel = 0;
             // Indicate to the database context we want to add this new record
             _context.Pets.Add(pet);
             await _context.SaveChangesAsync();
@@ -158,6 +164,68 @@ namespace TamagotchiAPI.Controllers
 
             // Return a copy of the deleted data
             return Ok(pet);
+        }
+
+        // Adding Playtimes to a Pet
+        // POST /api/Pets/1/Playtimes
+        [HttpPost("{id}/Playtimes")]
+        public async Task<ActionResult<Playtime>> CreatePlaytimeForPet(int id, Playtime playtime)
+        {
+            // First, lets find the Pet (by using the ID)
+            var pet = await _context.Pets.FindAsync(id);
+            // If the pet doesn't exist: return a 404 Not found.
+            if (pet == null)
+                return NotFound();
+            // Associate the playtime to the given pet.
+            playtime.PetId = pet.Id;
+
+            // Set playtime to current time. 
+            playtime.When = DateTime.Now;
+            // Add the playtime to the database
+            _context.Playtimes.Add(playtime);
+
+            // Add five to pet happiness level.
+            pet.HappinessLevel += 5;
+            // Add three to pet hunger level. 
+            pet.HungerLevel += 3;
+
+            await _context.SaveChangesAsync();
+
+            // Return the new playtime to the response of the API. 
+            return Ok(playtime);
+        }
+
+        [HttpPost("{id}/Feedings")]
+        public async Task<ActionResult<Playtime>> CreateFeedingForPet(int id, Feeding feeding)
+        {
+            // First, lets find the Pet (by using the ID)
+            var pet = await _context.Pets.FindAsync(id);
+            // If the pet doesn't exist: return a 404 Not found.
+            if (pet == null)
+                return NotFound();
+            // Associate the playtime to the given pet.
+            feeding.PetId = pet.Id;
+
+            // Can't feed a full pet. 
+            if (pet.HungerLevel == 0)
+                return BadRequest(new { Message = $"{pet.Name} isn't hungry!" });
+
+            // Set playtime to current time. 
+            feeding.When = DateTime.Now;
+            // Add the playtime to the database
+            _context.Feedings.Add(feeding);
+
+            // Add three to pet happiness level.
+            pet.HappinessLevel += 3;
+            // Subtract five to pet hunger level. 
+            pet.HungerLevel -= 5;
+            if (pet.HungerLevel < 0) // Don't let hunger level go negative. 
+                pet.HungerLevel = 0;
+
+            await _context.SaveChangesAsync();
+
+            // Return the new playtime to the response of the API. 
+            return Ok(feeding);
         }
 
         // Private helper method that looks up an existing pet by the supplied id
