@@ -9,5 +9,7 @@ namespace TamagotchiAPI.Models
         public DateTime Birthday { get; set; }
         public int HungerLevel { get; set; }
         public int HappinessLevel { get; set; }
+        public DateTime LastInteractedWithDate { set; get; }
+        public bool IsDead { get; set; }
     }
 }

@@ -193,7 +193,7 @@ namespace TamagotchiAPI.Controllers
         }
 
         [HttpPost("{id}/Feedings")]
-        public async Task<ActionResult<Playtime>> CreateFeedingForPet(int id, Feeding feeding)
+        public async Task<ActionResult<Feeding>> CreateFeedingForPet(int id, Feeding feeding)
         {
 
             var pet = await _context.Pets.FindAsync(id);
@@ -210,16 +210,13 @@ namespace TamagotchiAPI.Controllers
             pet.HappinessLevel += 3;
             // Subtract five from pet hunger level. 
             pet.HungerLevel -= 5;
-            // Don't let hunger level go negative.
-            if (pet.HungerLevel < 0)
-                pet.HungerLevel = 0;
 
             await _context.SaveChangesAsync();
             return Ok(feeding);
         }
 
         [HttpPost("{id}/Scoldings")]
-        public async Task<ActionResult<Playtime>> CreateScoldingForPet(int id, Scolding scolding)
+        public async Task<ActionResult<Scolding>> CreateScoldingForPet(int id, Scolding scolding)
         {
             var pet = await _context.Pets.FindAsync(id);
             if (pet == null)
@@ -229,10 +226,6 @@ namespace TamagotchiAPI.Controllers
             _context.Scoldings.Add(scolding);
             // Subtract five from pet happiness level. 
             pet.HappinessLevel -= 5;
-
-            // Stop scolding your pet!
-            if (pet.HappinessLevel < 0)
-                return BadRequest("Your pet is sad.");
 
             await _context.SaveChangesAsync();
             return Ok(scolding);
