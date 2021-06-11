@@ -81,8 +81,8 @@ namespace TamagotchiAPI.Controllers
         {
             // Birthday defaults to current DateTime. 
             pet.Birthday = DateTime.Now;
-            // HungerLevel defaults to 0. 
-            pet.HungerLevel = 0;
+            // HungerLevel defaults to 6. 
+            pet.HungerLevel = 6;
             // HappinessLevel defaults to 0. 
             pet.HappinessLevel = 0;
             // Indicate to the database context we want to add this new record
@@ -159,8 +159,8 @@ namespace TamagotchiAPI.Controllers
                 return NotFound();
             feeding.PetId = pet.Id;
             // Can't feed a full pet. 
-            if (pet.HungerLevel == 0)
-                return BadRequest(new { Message = $"{pet.Name} isn't hungry!" });
+            if (pet.HungerLevel <= 0)
+                pet.HungerLevel = 0;
             // Set feeding to current time. 
             feeding.When = DateTime.Now;
             _context.Feedings.Add(feeding);
